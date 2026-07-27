@@ -25,15 +25,14 @@ try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $user, $pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
+} catch(PDOException $e) {
     die(json_encode(['success' => false, 'message' => 'Erro de conexão: ' . $e->getMessage()]));
 }
 
 // ============================================
 // FUNÇÕES JWT
 // ============================================
-function generateToken($user_id, $email, $user_type)
-{
+function generateToken($user_id, $email, $user_type) {
     $header = base64_encode(json_encode(['typ' => 'JWT', 'alg' => 'HS256']));
     $payload = base64_encode(json_encode([
         'user_id' => $user_id,
@@ -46,23 +45,22 @@ function generateToken($user_id, $email, $user_type)
     return "$header.$payload.$signature";
 }
 
-function validateToken()
-{
+function validateToken() {
     $headers = getallheaders();
     $auth = isset($headers['Authorization']) ? $headers['Authorization'] : '';
     $token = str_replace('Bearer ', '', $auth);
-
+    
     $parts = explode('.', $token);
     if (count($parts) != 3) return null;
-
+    
     $signature = hash_hmac('sha256', "$parts[0].$parts[1]", 'dashbeauty_secret_2024', true);
     $signature = base64_encode($signature);
-
+    
     if ($signature !== $parts[2]) return null;
-
+    
     $payload = json_decode(base64_decode($parts[1]), true);
     if ($payload['exp'] < time()) return null;
-
+    
     return $payload;
 }
 
@@ -71,12 +69,11 @@ function validateToken()
 // ============================================
 $method = $_SERVER['REQUEST_METHOD'];
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$path = str_replace('/TCC/Dashbeauty/api', '', $path);
 $path = str_replace('/api', '', $path);
-$path = str_replace('/dashbeauty-pwa/api', '', $path);
 $segments = explode('/', trim($path, '/'));
 $resource = $segments[0] ?? '';
 $id = $segments[1] ?? null;
-$action = $segments[2] ?? null;
 
 $input = json_decode(file_get_contents('php://input'), true) ?? [];
 
@@ -88,7 +85,7 @@ try {
         echo json_encode(['success' => true, 'message' => 'API DashBeauty funcionando!']);
         exit();
     }
-
+    
     // ============================================
     // AUTENTICAÇÃO
     // ============================================
@@ -101,7 +98,7 @@ try {
                                    WHERE u.email = ? AND u.password = MD5(?)");
             $stmt->execute([$input['email'], $input['password']]);
             $user = $stmt->fetch();
-
+            
             if ($user) {
                 $token = generateToken($user['id'], $user['email'], $user['user_type']);
                 echo json_encode([
@@ -124,7 +121,7 @@ try {
             }
             exit();
         }
-
+        
         // REGISTRO
         if ($method === 'POST' && $id === 'register') {
             // Verificar se email já existe
@@ -134,19 +131,19 @@ try {
                 echo json_encode(['success' => false, 'message' => 'Email já cadastrado']);
                 exit();
             }
-
+            
             // Inserir usuário
             $stmt = $pdo->prepare("INSERT INTO users (email, password, name, phone, user_type) VALUES (?, MD5(?), ?, ?, ?)");
             $stmt->execute([$input['email'], $input['password'], $input['name'], $input['phone'], $input['user_type']]);
             $userId = $pdo->lastInsertId();
-
+            
             // Se for empresa, criar registro na tabela businesses
             if ($input['user_type'] === 'business') {
                 $businessName = $input['business_name'] ?? $input['name'];
                 $stmt = $pdo->prepare("INSERT INTO businesses (user_id, business_name, description) VALUES (?, ?, ?)");
                 $stmt->execute([$userId, $businessName, $input['description'] ?? '']);
             }
-
+            
             $token = generateToken($userId, $input['email'], $input['user_type']);
             echo json_encode([
                 'success' => true,
@@ -161,11 +158,11 @@ try {
             ]);
             exit();
         }
-
+        
         echo json_encode(['success' => false, 'message' => 'Rota auth não encontrada']);
         exit();
     }
-
+    
     // ============================================
     // EMPRESAS
     // ============================================
@@ -188,8 +185,8 @@ try {
             echo json_encode(['success' => true, 'data' => $stmt->fetchAll()]);
             exit();
         }
-
-        // BUSCAR UMA EMPRESA (com serviços)
+        
+        // BUSCAR UMA EMPRESA
         if ($method === 'GET' && $id) {
             $stmt = $pdo->prepare("
                 SELECT b.*, u.name as owner_name, u.email, u.phone as owner_phone,
@@ -203,18 +200,18 @@ try {
             ");
             $stmt->execute([$id]);
             $business = $stmt->fetch();
-
+            
             if ($business) {
                 // Buscar serviços
                 $stmt = $pdo->prepare("SELECT * FROM services WHERE business_id = ? AND is_active = 1");
                 $stmt->execute([$id]);
                 $business['services'] = $stmt->fetchAll();
-
+                
                 // Buscar horários
                 $stmt = $pdo->prepare("SELECT * FROM business_hours WHERE business_id = ? ORDER BY day_of_week");
                 $stmt->execute([$id]);
                 $business['hours'] = $stmt->fetchAll();
-
+                
                 // Buscar avaliações
                 $stmt = $pdo->prepare("
                     SELECT r.*, u.name as client_name 
@@ -226,15 +223,15 @@ try {
                 ");
                 $stmt->execute([$id]);
                 $business['reviews'] = $stmt->fetchAll();
-
+                
                 echo json_encode(['success' => true, 'data' => $business]);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Empresa não encontrada']);
             }
             exit();
         }
-
-        // ATUALIZAR EMPRESA (logo, descrição, etc)
+        
+        // ATUALIZAR EMPRESA
         if ($method === 'PUT' && $id) {
             $userData = validateToken();
             if (!$userData) {
@@ -242,7 +239,7 @@ try {
                 echo json_encode(['success' => false, 'message' => 'Não autorizado']);
                 exit();
             }
-
+            
             $stmt = $pdo->prepare("
                 UPDATE businesses SET 
                     business_name = ?,
@@ -267,29 +264,29 @@ try {
                 $id,
                 $userData['user_id']
             ]);
-
+            
             echo json_encode(['success' => true, 'message' => 'Empresa atualizada com sucesso']);
             exit();
         }
-
+        
         echo json_encode(['success' => false, 'message' => 'Rota businesses não encontrada']);
         exit();
     }
-
+    
     // ============================================
     // SERVIÇOS
     // ============================================
     if ($resource === 'services') {
         $userData = validateToken();
-
-        // LISTAR SERVIÇOS DE UMA EMPRESA
+        
+        // LISTAR SERVIÇOS
         if ($method === 'GET' && isset($_GET['business_id'])) {
             $stmt = $pdo->prepare("SELECT * FROM services WHERE business_id = ? AND is_active = 1");
             $stmt->execute([$_GET['business_id']]);
             echo json_encode(['success' => true, 'data' => $stmt->fetchAll()]);
             exit();
         }
-
+        
         // CRIAR SERVIÇO
         if ($method === 'POST') {
             if (!$userData) {
@@ -297,17 +294,17 @@ try {
                 echo json_encode(['success' => false, 'message' => 'Não autorizado']);
                 exit();
             }
-
+            
             // Buscar business_id do usuário
             $stmt = $pdo->prepare("SELECT id FROM businesses WHERE user_id = ?");
             $stmt->execute([$userData['user_id']]);
             $business = $stmt->fetch();
-
+            
             if (!$business) {
                 echo json_encode(['success' => false, 'message' => 'Empresa não encontrada']);
                 exit();
             }
-
+            
             $stmt = $pdo->prepare("
                 INSERT INTO services (business_id, name, description, price, duration_minutes, category) 
                 VALUES (?, ?, ?, ?, ?, ?)
@@ -320,11 +317,11 @@ try {
                 $input['duration'],
                 $input['category']
             ]);
-
+            
             echo json_encode(['success' => true, 'message' => 'Serviço criado com sucesso', 'id' => $pdo->lastInsertId()]);
             exit();
         }
-
+        
         // DELETAR SERVIÇO
         if ($method === 'DELETE' && $id) {
             if (!$userData) {
@@ -332,17 +329,17 @@ try {
                 echo json_encode(['success' => false, 'message' => 'Não autorizado']);
                 exit();
             }
-
+            
             $stmt = $pdo->prepare("UPDATE services SET is_active = 0 WHERE id = ?");
             $stmt->execute([$id]);
             echo json_encode(['success' => true, 'message' => 'Serviço removido com sucesso']);
             exit();
         }
-
+        
         echo json_encode(['success' => false, 'message' => 'Rota services não encontrada']);
         exit();
     }
-
+    
     // ============================================
     // AGENDAMENTOS
     // ============================================
@@ -353,7 +350,7 @@ try {
             echo json_encode(['success' => false, 'message' => 'Não autorizado']);
             exit();
         }
-
+        
         // LISTAR AGENDAMENTOS DO CLIENTE
         if ($method === 'GET' && $userData['user_type'] === 'client') {
             $stmt = $pdo->prepare("
@@ -368,7 +365,7 @@ try {
             echo json_encode(['success' => true, 'data' => $stmt->fetchAll()]);
             exit();
         }
-
+        
         // LISTAR AGENDAMENTOS DA EMPRESA
         if ($method === 'GET' && $userData['user_type'] === 'business') {
             $stmt = $pdo->prepare("
@@ -383,15 +380,20 @@ try {
             echo json_encode(['success' => true, 'data' => $stmt->fetchAll()]);
             exit();
         }
-
+        
         // CRIAR AGENDAMENTO
         if ($method === 'POST') {
             if ($userData['user_type'] !== 'client') {
                 echo json_encode(['success' => false, 'message' => 'Apenas clientes podem agendar']);
                 exit();
             }
-
-            $stmt = $pdo->prepare("INSERT INTO appointments (service_id, client_id, appointment_date, appointment_time, price, notes) VALUES (?, ?, ?, ?, ?, ?)");
+            
+            // Verificar disponibilidade (opcional)
+            
+            $stmt = $pdo->prepare("
+                INSERT INTO appointments (service_id, client_id, appointment_date, appointment_time, price, notes) 
+                VALUES (?, ?, ?, ?, ?, ?)
+            ");
             $stmt->execute([
                 $input['service_id'],
                 $userData['user_id'],
@@ -400,15 +402,15 @@ try {
                 $input['price'],
                 $input['notes'] ?? ''
             ]);
-
+            
             echo json_encode(['success' => true, 'message' => 'Agendamento realizado com sucesso', 'id' => $pdo->lastInsertId()]);
             exit();
         }
-
+        
         echo json_encode(['success' => false, 'message' => 'Rota appointments não encontrada']);
         exit();
     }
-
+    
     // ============================================
     // FAVORITOS
     // ============================================
@@ -419,7 +421,7 @@ try {
             echo json_encode(['success' => false, 'message' => 'Não autorizado']);
             exit();
         }
-
+        
         // LISTAR FAVORITOS
         if ($method === 'GET') {
             $stmt = $pdo->prepare("
@@ -431,7 +433,7 @@ try {
             echo json_encode(['success' => true, 'data' => $stmt->fetchAll()]);
             exit();
         }
-
+        
         // ADICIONAR FAVORITO
         if ($method === 'POST') {
             $stmt = $pdo->prepare("INSERT IGNORE INTO favorites (user_id, business_id) VALUES (?, ?)");
@@ -439,7 +441,7 @@ try {
             echo json_encode(['success' => true, 'message' => 'Adicionado aos favoritos']);
             exit();
         }
-
+        
         // REMOVER FAVORITO
         if ($method === 'DELETE' && $id) {
             $stmt = $pdo->prepare("DELETE FROM favorites WHERE user_id = ? AND business_id = ?");
@@ -447,11 +449,11 @@ try {
             echo json_encode(['success' => true, 'message' => 'Removido dos favoritos']);
             exit();
         }
-
+        
         echo json_encode(['success' => false, 'message' => 'Rota favorites não encontrada']);
         exit();
     }
-
+    
     // ============================================
     // ROTA PADRÃO
     // ============================================
@@ -474,7 +476,9 @@ try {
             'DELETE /favorites/{id}' => 'Remover favorito'
         ]
     ]);
+    
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Erro interno: ' . $e->getMessage()]);
 }
+?>

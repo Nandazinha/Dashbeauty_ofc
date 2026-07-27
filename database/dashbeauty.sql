@@ -22,7 +22,7 @@ CREATE TABLE users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================
--- TABELA DE EMPRESAS (com logo, descrição, etc)
+-- TABELA DE EMPRESAS
 -- ============================================
 CREATE TABLE businesses (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -128,9 +128,10 @@ CREATE TABLE favorites (
 INSERT INTO users (email, password, name, phone, user_type) VALUES
 ('admin@dashbeauty.com', MD5('123456'), 'Administrador', '(11) 99999-0000', 'business'),
 ('salao.maria@email.com', MD5('123456'), 'Maria Silva', '(11) 99999-1111', 'business'),
-('ana.cliente@email.com', MD5('123456'), 'Ana Oliveira', '(11) 99999-3333', 'client');
+('ana.cliente@email.com', MD5('123456'), 'Ana Oliveira', '(11) 99999-3333', 'client'),
+('joao.cliente@email.com', MD5('123456'), 'João Souza', '(11) 99999-4444', 'client');
 
--- Empresas (com logo, descrição, etc)
+-- Empresas
 INSERT INTO businesses (user_id, business_name, description, logo, address, whatsapp, instagram, is_featured, rating, total_ratings) VALUES
 (1, 'Salão da Maria', 'Salão completo com os melhores profissionais. Especialistas em cortes modernos, coloração e tratamentos capilares. Ambiente aconchegante e produtos de alta qualidade.', '/assets/images/salao-maria-logo.png', 'Rua das Flores, 123 - São Paulo, SP', '(11) 98888-1111', '@salaodamaria', 1, 4.8, 120),
 (2, 'Studio de Beleza', 'Especializado em cabelos e unhas. Atendimento personalizado e produtos de alta qualidade. Profissionais experientes e ambiente moderno.', '/assets/images/studio-beleza-logo.png', 'Av. Paulista, 1000 - São Paulo, SP', '(11) 97777-2222', '@studiobeleza', 0, 4.5, 85);
@@ -150,27 +151,32 @@ INSERT INTO services (business_id, name, description, price, duration_minutes, c
 (1, 'Corte de Cabelo', 'Corte moderno com design personalizado, inclui lavagem e finalização.', 50.00, 45, 'Cabelo'),
 (1, 'Coloração', 'Coloração completa com produtos premium.', 120.00, 120, 'Cabelo'),
 (1, 'Hidratação', 'Tratamento intensivo de hidratação.', 80.00, 60, 'Cabelo'),
+(1, 'Escova', 'Escova modeladora com produtos de alta qualidade.', 40.00, 45, 'Cabelo'),
 (2, 'Manicure', 'Alongamento de unhas em gel com esmaltação.', 70.00, 90, 'Unhas'),
-(2, 'Pedicure', 'Pé completo com esmaltação e massagem.', 60.00, 60, 'Unhas');
+(2, 'Pedicure', 'Pé completo com esmaltação e massagem.', 60.00, 60, 'Unhas'),
+(2, 'Design de Sobrancelhas', 'Design com henna, pinça e cera.', 40.00, 30, 'Sobrancelhas');
 
 -- Agendamentos
 INSERT INTO appointments (service_id, client_id, appointment_date, appointment_time, price, status) VALUES
 (1, 3, DATE_ADD(CURDATE(), INTERVAL 1 DAY), '14:00:00', 50.00, 'scheduled'),
-(2, 3, DATE_ADD(CURDATE(), INTERVAL 2 DAY), '10:00:00', 120.00, 'scheduled');
+(2, 3, DATE_ADD(CURDATE(), INTERVAL 2 DAY), '10:00:00', 120.00, 'scheduled'),
+(5, 4, DATE_ADD(CURDATE(), INTERVAL 3 DAY), '15:30:00', 70.00, 'scheduled');
 
 -- Avaliações
 INSERT INTO reviews (appointment_id, rating, comment) VALUES
 (1, 5, 'Excelente atendimento! A Maria é muito profissional e atenciosa.'),
-(2, 4, 'Muito bom, o resultado ficou lindo.');
+(2, 4, 'Muito bom, o resultado ficou lindo. Voltarei mais vezes.');
 
 -- Favoritos
 INSERT INTO favorites (user_id, business_id) VALUES
-(3, 1);
+(3, 1),
+(4, 2);
 
 -- ============================================
 -- VERIFICAÇÃO
 -- ============================================
-SELECT 'BANCO DE DADOS CRIADO COM SUCESSO!' as STATUS;
+SELECT ' BANCO DE DADOS CRIADO COM SUCESSO!' as STATUS;
 SELECT 'Usuários' as Tabela, COUNT(*) as Total FROM users
 UNION ALL SELECT 'Empresas', COUNT(*) FROM businesses
-UNION ALL SELECT 'Serviços', COUNT(*) FROM services;
+UNION ALL SELECT 'Serviços', COUNT(*) FROM services
+UNION ALL SELECT 'Agendamentos', COUNT(*) FROM appointments;

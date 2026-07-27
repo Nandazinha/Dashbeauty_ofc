@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DashBeauty - Empresa</title>
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo" onclick="window.location.href='index.html'">
+                <i class="fas fa-spa"></i>
+                <div>
+                    <h1>dashbeauty</h1>
+                    <span>empresa</span>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-link active" data-page="dashboard"><i class="fas fa-chart-line"></i> Dashboard</button>
+                <button class="nav-link" data-page="services"><i class="fas fa-cut"></i> Serviços</button>
+                <button class="nav-link" data-page="appointments"><i class="fas fa-calendar-alt"></i> Agendamentos</button>
+                <button class="nav-link" data-page="profile"><i class="fas fa-user"></i> Perfil</button>
+            </nav>
+            <div class="user-info">
+                <span id="business-name"></span>
+                <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Página Dashboard -->
+            <div id="page-dashboard" class="page active">
+                <h3 class="section-title">Dashboard</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-services">0</div>
+                        <div class="stat-label">Serviços</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-appointments">0</div>
+                        <div class="stat-label">Agendamentos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-revenue">R$ 0</div>
+                        <div class="stat-label">Faturamento</div>
+                    </div>
+                </div>
+                <h3 class="section-title">Agendamentos Recentes</h3>
+                <div id="recent-appointments" class="appointments-list"></div>
+            </div>
+
+            <!-- Página Serviços -->
+            <div id="page-services" class="page">
+                <div class="flex-between">
+                    <h3 class="section-title">Meus Serviços</h3>
+                    <button class="btn-primary small" onclick="showAddServiceModal()"><i class="fas fa-plus"></i> Novo</button>
+                </div>
+                <div id="services-list" class="services-list"></div>
+            </div>
+
+            <!-- Página Agendamentos -->
+            <div id="page-appointments" class="page">
+                <h3 class="section-title">Agendamentos</h3>
+                <div id="business-appointments" class="appointments-list"></div>
+            </div>
+
+            <!-- Página Perfil -->
+            <div id="page-profile" class="page">
+                <h3 class="section-title">Perfil da Empresa</h3>
+                <div class="profile-card">
+                    <div class="profile-avatar"><i class="fas fa-store"></i></div>
+                    <div>
+                        <h3 id="profile-name"></h3>
+                        <p id="profile-email"></p>
+                        <p id="profile-phone"></p>
+                    </div>
+                </div>
+                <div class="profile-form">
+                    <div class="form-group">
+                        <label>Nome do estabelecimento</label>
+                        <input type="text" id="business-name-input" placeholder="Nome do seu salão">
+                    </div>
+                    <div class="form-group">
+                        <label>Descrição</label>
+                        <textarea id="business-description" rows="4" placeholder="Descreva seu estabelecimento..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Endereço</label>
+                        <input type="text" id="business-address" placeholder="Endereço completo">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>WhatsApp</label>
+                            <input type="text" id="business-whatsapp" placeholder="(11) 99999-9999">
+                        </div>
+                        <div class="form-group">
+                            <label>Instagram</label>
+                            <input type="text" id="business-instagram" placeholder="@seudominio">
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="updateBusinessProfile()">Salvar Alterações</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de Serviço -->
+    <div id="service-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeServiceModal()">&times;</span>
+            <h3 id="modal-title">Novo Serviço</h3>
+            <div class="form-group">
+                <label>Nome do serviço</label>
+                <input type="text" id="service-name" placeholder="Ex: Corte de Cabelo">
+            </div>
+            <div class="form-group">
+                <label>Descrição</label>
+                <textarea id="service-desc" rows="3" placeholder="Descreva o serviço..."></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Preço (R$)</label>
+                    <input type="number" id="service-price" step="0.01" placeholder="0,00">
+                </div>
+                <div class="form-group">
+                    <label>Duração (min)</label>
+                    <input type="number" id="service-duration" placeholder="60">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Categoria</label>
+                <select id="service-cat">
+                    <option>Cabelo</option>
+                    <option>Unhas</option>
+                    <option>Maquiagem</option>
+                    <option>Massagem</option>
+                    <option>Estética</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeServiceModal()">Cancelar</button>
+                <button class="btn-primary" onclick="saveService()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        let services = [];
+        let businessAppointments = [];
+        let editingServiceId = null;
+        let businessId = null;
+
+        // ============================================
+        // CARREGAR DADOS DA EMPRESA
+        // ============================================
+        function loadBusinessInfo() {
+            const name = localStorage.getItem('business_name') || 'Meu Salão';
+            const email = localStorage.getItem('user_id') || 'empresa@email.com';
+            
+            document.getElementById('business-name').textContent = name;
+            document.getElementById('profile-name').textContent = name;
+            document.getElementById('profile-email').textContent = email;
+            
+            document.getElementById('business-name-input').value = name;
+        }
+
+        // ============================================
+        // ATUALIZAR PERFIL DA EMPRESA
+        // ============================================
+        async function updateBusinessProfile() {
+            const data = {
+                business_name: document.getElementById('business-name-input').value,
+                description: document.getElementById('business-description').value,
+                address: document.getElementById('business-address').value,
+                whatsapp: document.getElementById('business-whatsapp').value,
+                instagram: document.getElementById('business-instagram').value
+            };
+            
+            if (!businessId) {
+                showToast('ID da empresa não encontrado', 'error');
+                return;
+            }
+            
+            const result = await API.updateBusiness(businessId, data);
+            
+            if (result.success) {
+                showToast('Perfil atualizado com sucesso!', 'success');
+                loadBusinessInfo();
+            } else {
+                showToast(result.message || 'Erro ao atualizar', 'error');
+            }
+        }
+
+        // ============================================
+        // CARREGAR SERVIÇOS
+        // ============================================
+        async function loadServices() {
+            const container = document.getElementById('services-list');
+            
+            try {
+                const result = await API.getBusiness(businessId);
+                
+                if (result.success && result.data.services) {
+                    services = result.data.services;
+                } else {
+                    services = [];
+                }
+                
+                if (services.length === 0) {
+                    container.innerHTML = `<div class="empty-state"><i class="fas fa-cut"></i><h3>Nenhum serviço cadastrado</h3><button class="btn-primary" onclick="showAddServiceModal()">Adicionar Serviço</button></div>`;
+                    return;
+                }
+                
+                container.innerHTML = services.map(s => `
+                    <div class="service-card">
+                        <div>
+                            <h4>${s.name}</h4>
+                            <p>${s.description || ''}</p>
+                            <span class="service-price">R$ ${parseFloat(s.price).toFixed(2)}</span>
+                            <span style="margin-left: 12px; font-size: 12px;">⏱️ ${s.duration_minutes} min</span>
+                            <span style="margin-left: 12px; font-size: 12px; background: rgba(108,59,212,0.2); padding: 2px 8px; border-radius: 12px;">${s.category || ''}</span>
+                        </div>
+                        <div class="service-actions">
+                            <button class="btn-edit" onclick="editService(${s.id})"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete" onclick="deleteService(${s.id})"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('total-services').textContent = services.length;
+            } catch (error) {
+                container.innerHTML = '<div class="empty-state">Erro ao carregar serviços</div>';
+            }
+        }
+
+        // ============================================
+        // ADICIONAR SERVIÇO
+        // ============================================
+        function showAddServiceModal() {
+            editingServiceId = null;
+            document.getElementById('modal-title').textContent = 'Novo Serviço';
+            document.getElementById('service-name').value = '';
+            document.getElementById('service-desc').value = '';
+            document.getElementById('service-price').value = '';
+            document.getElementById('service-duration').value = '';
+            document.getElementById('service-cat').value = 'Cabelo';
+            document.getElementById('service-modal').style.display = 'flex';
+        }
+
+        // ============================================
+        // EDITAR SERVIÇO
+        // ============================================
+        function editService(id) {
+            const service = services.find(s => s.id === id);
+            if (!service) return;
+            
+            editingServiceId = id;
+            document.getElementById('modal-title').textContent = 'Editar Serviço';
+            document.getElementById('service-name').value = service.name;
+            document.getElementById('service-desc').value = service.description || '';
+            document.getElementById('service-price').value = service.price;
+            document.getElementById('service-duration').value = service.duration_minutes;
+            document.getElementById('service-cat').value = service.category || 'Cabelo';
+            document.getElementById('service-modal').style.display = 'flex';
+        }
+
+        // ============================================
+        // SALVAR SERVIÇO
+        // ============================================
+        async function saveService() {
+            const name = document.getElementById('service-name').value;
+            const description = document.getElementById('service-desc').value;
+            const price = parseFloat(document.getElementById('service-price').value);
+            const duration = parseInt(document.getElementById('service-duration').value);
+            const category = document.getElementById('service-cat').value;
+            
+            if (!name || !price || !duration) {
+                showToast('Preencha todos os campos obrigatórios', 'error');
+                return;
+            }
+            
+            const data = {
+                name,
+                description,
+                price,
+                duration,
+                category
+            };
+            
+            let result;
+            if (editingServiceId) {
+                // Atualizar serviço - como não temos endpoint PUT para serviços, recriamos
+                result = await API.createService(data);
+            } else {
+                result = await API.createService(data);
+            }
+            
+            if (result.success) {
+                showToast(editingServiceId ? 'Serviço atualizado!' : 'Serviço criado!', 'success');
+                closeServiceModal();
+                loadServices();
+                updateDashboard();
+            } else {
+                showToast(result.message || 'Erro ao salvar', 'error');
+            }
+        }
+
+        // ============================================
+        // DELETAR SERVIÇO
+        // ============================================
+        async function deleteService(id) {
+            if (!confirm('Tem certeza que deseja excluir este serviço?')) return;
+            
+            const result = await API.deleteService(id);
+            
+            if (result.success) {
+                showToast('Serviço excluído com sucesso', 'success');
+                loadServices();
+                updateDashboard();
+            } else {
+                showToast(result.message || 'Erro ao excluir', 'error');
+            }
+        }
+
+        // ============================================
+        // CARREGAR AGENDAMENTOS DA EMPRESA
+        // ============================================
+        async function loadBusinessAppointments() {
+            const container = document.getElementById('business-appointments');
+            
+            try {
+                const result = await API.getAppointments();
+                
+                if (!result.success || !result.data || result.data.length === 0) {
+                    container.innerHTML = '<div class="empty-state">Nenhum agendamento</div>';
+                    return;
+                }
+                
+                businessAppointments = result.data;
+                
+                container.innerHTML = result.data.map(a => `
+                    <div class="appointment-card">
+                        <div>
+                            <h4>${a.service_name}</h4>
+                            <p><strong>Cliente:</strong> ${a.client_name || 'Cliente'}</p>
+                            <p><i class="fas fa-calendar"></i> ${formatDate(a.appointment_date)} às ${a.appointment_time}</p>
+                            <p><strong>Valor:</strong> R$ ${parseFloat(a.price).toFixed(2)}</p>
+                            <span class="appointment-status status-${a.status}">${getStatusText(a.status)}</span>
+                            ${a.notes ? `<p style="font-size: 12px; margin-top: 8px;"><i class="fas fa-pen"></i> ${a.notes}</p>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('total-appointments').textContent = result.data.length;
+                const totalRevenue = result.data.reduce((sum, a) => sum + parseFloat(a.price), 0);
+                document.getElementById('total-revenue').textContent = `R$ ${totalRevenue.toFixed(2)}`;
+            } catch (error) {
+                container.innerHTML = '<div class="empty-state">Erro ao carregar agendamentos</div>';
+            }
+        }
+
+        // ============================================
+        // ATUALIZAR DASHBOARD
+        // ============================================
+        function updateDashboard() {
+            document.getElementById('total-services').textContent = services.length;
+            loadBusinessAppointments();
+        }
+
+        // ============================================
+        // FUNÇÕES DE MODAL
+        // ============================================
+        function closeServiceModal() {
+            document.getElementById('service-modal').style.display = 'none';
+            editingServiceId = null;
+        }
+
+        // ============================================
+        // EVENTOS E INICIALIZAÇÃO
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            
+            // Verificar se é empresa
+            if (localStorage.getItem('user_type') !== 'business') {
+                window.location.href = 'client.html';
+            }
+            
+            // Buscar business_id
+            const userId = localStorage.getItem('user_id');
+            if (userId) {
+                // Buscar empresas do usuário
+                API.getBusinesses().then(result => {
+                    if (result.success && result.data) {
+                        const userBusiness = result.data.find(b => b.user_id == userId);
+                        if (userBusiness) {
+                            businessId = userBusiness.id;
+                            localStorage.setItem('business_id', businessId);
+                            loadServices();
+                            loadBusinessAppointments();
+                        }
+                    }
+                });
+            }
+            
+            loadBusinessInfo();
+            updateDashboard();
+            
+            // Navegação entre abas
+            setupNavigation();
+        });
+
+        // Fechar modal ao clicar fora
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('service-modal');
+            if (e.target === modal) {
+                closeServiceModal();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DashBeauty - Cliente</title>
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo" onclick="window.location.href='index.html'">
+                <i class="fas fa-spa"></i>
+                <div>
+                    <h1>dashbeauty</h1>
+                    <span>cliente</span>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-link active" data-page="home"><i class="fas fa-home"></i> Início</button>
+                <button class="nav-link" data-page="appointments"><i class="fas fa-calendar-alt"></i> Agendamentos</button>
+                <button class="nav-link" data-page="favorites"><i class="fas fa-heart"></i> Favoritos</button>
+                <button class="nav-link" data-page="profile"><i class="fas fa-user"></i> Perfil</button>
+            </nav>
+            <div class="user-info">
+                <span id="user-name"></span>
+                <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Página Início -->
+            <div id="page-home" class="page active">
+                <div class="greeting">
+                    <h2>Olá, <span id="welcome-name"></span>!</h2>
+                    <p>Encontre os melhores serviços de beleza perto de você</p>
+                </div>
+                
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Buscar salão ou serviço...">
+                    <button id="search-btn">Buscar</button>
+                </div>
+                
+                <h3 class="section-title">Categorias Populares</h3>
+                <div class="categories-grid" id="categories-grid">
+                    <div class="category-card" data-cat="Cabelo"><i class="fas fa-cut"></i><span>Cabelo</span></div>
+                    <div class="category-card" data-cat="Unhas"><i class="fas fa-hand-peace"></i><span>Unhas</span></div>
+                    <div class="category-card" data-cat="Maquiagem"><i class="fas fa-brush"></i><span>Maquiagem</span></div>
+                    <div class="category-card" data-cat="Massagem"><i class="fas fa-spa"></i><span>Massagem</span></div>
+                    <div class="category-card" data-cat="Sobrancelhas"><i class="fas fa-eye"></i><span>Sobrancelhas</span></div>
+                    <div class="category-card" data-cat="Depilação"><i class="fas fa-wind"></i><span>Depilação</span></div>
+                </div>
+                
+                <h3 class="section-title">Salões em Destaque</h3>
+                <div id="businesses-list" class="businesses-grid"></div>
+            </div>
+
+            <!-- Página Agendamentos -->
+            <div id="page-appointments" class="page">
+                <h3 class="section-title">Meus Agendamentos</h3>
+                <div id="appointments-list" class="appointments-list"></div>
+            </div>
+
+            <!-- Página Favoritos -->
+            <div id="page-favorites" class="page">
+                <h3 class="section-title">Meus Favoritos</h3>
+                <div id="favorites-list" class="businesses-grid"></div>
+            </div>
+
+            <!-- Página Perfil -->
+            <div id="page-profile" class="page">
+                <h3 class="section-title">Meu Perfil</h3>
+                <div class="profile-card">
+                    <div class="profile-avatar"><i class="fas fa-user-circle"></i></div>
+                    <div>
+                        <h3 id="profile-name"></h3>
+                        <p id="profile-email"></p>
+                        <p id="profile-phone"></p>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-appointments">0</div>
+                        <div class="stat-label">Agendamentos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-favorites">0</div>
+                        <div class="stat-label">Favoritos</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de Agendamento -->
+    <div id="booking-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeBookingModal()">&times;</span>
+            <h3>Agendar Serviço</h3>
+            <div id="booking-form"></div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        let currentBusiness = null;
+        let selectedService = null;
+        let currentUser = {};
+
+        // ============================================
+        // CARREGAR DADOS DO USUÁRIO
+        // ============================================
+        function loadUserInfo() {
+            currentUser = {
+                name: localStorage.getItem('user_name') || 'Cliente',
+                email: localStorage.getItem('user_id') || 'cliente@email.com',
+                phone: '(11) 99999-9999'
+            };
+            
+            document.getElementById('user-name').textContent = currentUser.name;
+            document.getElementById('welcome-name').textContent = currentUser.name;
+            document.getElementById('profile-name').textContent = currentUser.name;
+            document.getElementById('profile-email').textContent = currentUser.email;
+            document.getElementById('profile-phone').textContent = currentUser.phone;
+        }
+
+        // ============================================
+        // CARREGAR EMPRESAS
+        // ============================================
+        async function loadBusinesses() {
+            const container = document.getElementById('businesses-list');
+            container.innerHTML = '<div class="loading">Carregando...</div>';
+            
+            try {
+                const result = await API.getBusinesses();
+                
+                if (result.success) {
+                    displayBusinesses(result.data, container);
+                } else {
+                    container.innerHTML = '<div class="empty-state">Erro ao carregar empresas</div>';
+                }
+            } catch (error) {
+                container.innerHTML = '<div class="empty-state">Erro de conexão</div>';
+            }
+        }
+
+        function displayBusinesses(businesses, container) {
+            if (!businesses || businesses.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-store-slash"></i><h3>Nenhuma empresa encontrada</h3></div>';
+                return;
+            }
+            
+            container.innerHTML = businesses.map(b => `
+                <div class="business-card" onclick="showBusinessDetail(${b.id})">
+                    <div class="business-image">
+                        <i class="fas fa-store"></i>
+                        ${b.is_featured ? '<span class="featured-tag">Destaque</span>' : ''}
+                    </div>
+                    <div class="business-info">
+                        <h4>${b.business_name}</h4>
+                        <div class="stars">${renderStars(b.rating || 0)}</div>
+                        <div class="business-address">
+                            <i class="fas fa-map-marker-alt"></i> ${b.address || 'Endereço não informado'}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ============================================
+        // BUSCAR EMPRESAS
+        // ============================================
+        async function searchBusinesses(query) {
+            const container = document.getElementById('businesses-list');
+            
+            if (!query) {
+                loadBusinesses();
+                return;
+            }
+            
+            container.innerHTML = '<div class="loading">Buscando...</div>';
+            
+            try {
+                const result = await API.getBusinesses(query);
+                if (result.success) {
+                    displayBusinesses(result.data, container);
+                }
+            } catch (error) {
+                container.innerHTML = '<div class="empty-state">Erro na busca</div>';
+            }
+        }
+
+        // ============================================
+        // DETALHES DA EMPRESA
+        // ============================================
+        async function showBusinessDetail(id) {
+            try {
+                const result = await API.getBusiness(id);
+                
+                if (!result.success) {
+                    showToast('Erro ao carregar detalhes', 'error');
+                    return;
+                }
+                
+                currentBusiness = result.data;
+                
+                const modal = document.getElementById('booking-modal');
+                const form = document.getElementById('booking-form');
+                
+                form.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <h4>${currentBusiness.business_name}</h4>
+                        <p>${currentBusiness.address || ''}</p>
+                        <div class="stars">${renderStars(currentBusiness.rating || 0)}</div>
+                        <p style="margin-top: 12px;">${currentBusiness.description || ''}</p>
+                    </div>
+                    <div class="services-list">
+                        <h4>Serviços disponíveis</h4>
+                        ${currentBusiness.services && currentBusiness.services.length > 0 ? 
+                            currentBusiness.services.map(s => `
+                                <div class="service-card">
+                                    <div>
+                                        <strong>${s.name}</strong>
+                                        <p>${s.description || ''}</p>
+                                        <span class="service-price">R$ ${parseFloat(s.price).toFixed(2)}</span>
+                                        <span style="margin-left: 12px; font-size: 12px;">⏱️ ${s.duration_minutes} min</span>
+                                    </div>
+                                    <button class="btn-primary small" onclick="selectService(${s.id})">Agendar</button>
+                                </div>
+                            `).join('') :
+                            '<p>Nenhum serviço disponível</p>'
+                        }
+                    </div>
+                    <div class="modal-buttons">
+                        <button class="btn-secondary" onclick="closeBookingModal()">Fechar</button>
+                    </div>
+                `;
+                
+                modal.style.display = 'flex';
+            } catch (error) {
+                showToast('Erro ao carregar detalhes', 'error');
+            }
+        }
+
+        // ============================================
+        // SELECIONAR SERVIÇO
+        // ============================================
+        function selectService(serviceId) {
+            selectedService = currentBusiness.services.find(s => s.id === serviceId);
+            
+            const today = new Date().toISOString().split('T')[0];
+            
+            document.getElementById('booking-form').innerHTML = `
+                <h4>${currentBusiness.business_name}</h4>
+                <p><strong>Serviço:</strong> ${selectedService.name}</p>
+                <p><strong>Valor:</strong> R$ ${parseFloat(selectedService.price).toFixed(2)}</p>
+                <p><strong>Duração:</strong> ${selectedService.duration_minutes} minutos</p>
+                
+                <div class="form-group">
+                    <label>Data</label>
+                    <div class="input-group">
+                        <i class="fas fa-calendar"></i>
+                        <input type="date" id="booking-date" min="${today}" value="${today}">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Horário</label>
+                    <div class="input-group">
+                        <i class="fas fa-clock"></i>
+                        <select id="booking-time">
+                            <option value="09:00">09:00</option>
+                            <option value="10:00">10:00</option>
+                            <option value="11:00">11:00</option>
+                            <option value="14:00">14:00</option>
+                            <option value="15:00">15:00</option>
+                            <option value="16:00">16:00</option>
+                            <option value="17:00">17:00</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Observações</label>
+                    <div class="input-group">
+                        <i class="fas fa-pen"></i>
+                        <textarea id="booking-notes" rows="3" placeholder="Alguma observação?"></textarea>
+                    </div>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button class="btn-secondary" onclick="showBusinessDetail(${currentBusiness.id})">Voltar</button>
+                    <button class="btn-primary" onclick="confirmBooking()">Confirmar</button>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // CONFIRMAR AGENDAMENTO
+        // ============================================
+        async function confirmBooking() {
+            const date = document.getElementById('booking-date').value;
+            const time = document.getElementById('booking-time').value;
+            const notes = document.getElementById('booking-notes').value;
+            
+            if (!date || !time) {
+                showToast('Selecione data e horário', 'error');
+                return;
+            }
+            
+            const data = {
+                service_id: selectedService.id,
+                appointment_date: date,
+                appointment_time: time,
+                price: selectedService.price,
+                notes: notes
+            };
+            
+            const result = await API.createAppointment(data);
+            
+            if (result.success) {
+                showToast('Agendamento realizado com sucesso!', 'success');
+                closeBookingModal();
+                loadAppointments();
+                loadUserInfo();
+                
+                // Mudar para página de agendamentos
+                document.querySelector('[data-page="appointments"]').click();
+            } else {
+                showToast(result.message || 'Erro ao agendar', 'error');
+            }
+        }
+
+        // ============================================
+        // CARREGAR AGENDAMENTOS
+        // ============================================
+        async function loadAppointments() {
+            const container = document.getElementById('appointments-list');
+            
+            try {
+                const result = await API.getAppointments();
+                
+                if (!result.success || !result.data || result.data.length === 0) {
+                    container.innerHTML = `<div class="empty-state"><i class="fas fa-calendar-alt"></i><h3>Nenhum agendamento</h3><button class="btn-primary" onclick="document.querySelector('[data-page="home"]').click()">Encontrar Salões</button></div>`;
+                    return;
+                }
+                
+                container.innerHTML = result.data.map(a => `
+                    <div class="appointment-card">
+                        <div>
+                            <h4>${a.service_name}</h4>
+                            <p><i class="fas fa-store"></i> ${a.business_name}</p>
+                            <p><i class="fas fa-calendar"></i> ${formatDate(a.appointment_date)} às ${a.appointment_time}</p>
+                            <p><strong>R$ ${parseFloat(a.price).toFixed(2)}</strong></p>
+                            <span class="appointment-status status-${a.status}">${getStatusText(a.status)}</span>
+                            ${a.notes ? `<p style="font-size: 12px; margin-top: 8px;"><i class="fas fa-pen"></i> ${a.notes}</p>` : ''}
+                        </div>
+                        ${a.status === 'scheduled' ? `<button class="btn-cancel" onclick="cancelAppointment(${a.id})">Cancelar</button>` : ''}
+                    </div>
+                `).join('');
+                
+                document.getElementById('stat-appointments').textContent = result.data.length;
+            } catch (error) {
+                container.innerHTML = '<div class="empty-state">Erro ao carregar agendamentos</div>';
+            }
+        }
+
+        // ============================================
+        // CANCELAR AGENDAMENTO
+        // ============================================
+        async function cancelAppointment(id) {
+            if (!confirm('Tem certeza que deseja cancelar este agendamento?')) return;
+            
+            // Para cancelar, precisamos de um endpoint DELETE
+            // Por enquanto, vamos remover localmente
+            showToast('Agendamento cancelado (simulação)', 'success');
+            loadAppointments();
+        }
+
+        // ============================================
+        // CARREGAR FAVORITOS
+        // ============================================
+        async function loadFavorites() {
+            const container = document.getElementById('favorites-list');
+            
+            try {
+                const result = await API.getFavorites();
+                
+                if (!result.success || !result.data || result.data.length === 0) {
+                    container.innerHTML = `<div class="empty-state"><i class="fas fa-heart"></i><h3>Nenhum favorito</h3><button class="btn-primary" onclick="document.querySelector('[data-page="home"]').click()">Explorar Salões</button></div>`;
+                    return;
+                }
+                
+                displayBusinesses(result.data, container);
+                document.getElementById('stat-favorites').textContent = result.data.length;
+            } catch (error) {
+                container.innerHTML = '<div class="empty-state">Erro ao carregar favoritos</div>';
+            }
+        }
+
+        // ============================================
+        // FUNÇÕES DE MODAL
+        // ============================================
+        function closeBookingModal() {
+            document.getElementById('booking-modal').style.display = 'none';
+            currentBusiness = null;
+            selectedService = null;
+        }
+
+        // ============================================
+        // EVENTOS E INICIALIZAÇÃO
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadUserInfo();
+            loadBusinesses();
+            loadAppointments();
+            loadFavorites();
+            
+            // Busca
+            document.getElementById('search-btn').addEventListener('click', function() {
+                const query = document.getElementById('search-input').value;
+                searchBusinesses(query);
+            });
+            
+            document.getElementById('search-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const query = this.value;
+                    searchBusinesses(query);
+                }
+            });
+            
+            // Categorias
+            document.querySelectorAll('.category-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const category = this.dataset.cat;
+                    document.querySelector('[data-page="home"]').click();
+                    document.getElementById('search-input').value = category;
+                    searchBusinesses(category);
+                });
+            });
+            
+            // Navegação entre abas
+            setupNavigation();
+        });
+
+        // Fechar modal ao clicar fora
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('booking-modal');
+            if (e.target === modal) {
+                closeBookingModal();
+            }
+        });
+    </script>
+</body>
+</html>

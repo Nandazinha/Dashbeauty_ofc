@@ -1,0 +1,38 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /TCC/Dashbeauty/
+    
+    # API
+    RewriteRule ^api/(.*)$ api/index.php [QSA,L]
+    
+    # Frontend - CORRIGIDO
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# PERMISSÕES CORRIGIDAS
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+</IfModule>
+
+# PERMITIR ACESSO A TODOS OS ARQUIVOS
+<Directory "C:/laragon/www/TCC/Dashbeauty">
+    Options Indexes FollowSymLinks
+    AllowOverride All
+    Require all granted
+</Directory>
+
+<Directory "C:/laragon/www/TCC/Dashbeauty/public">
+    Options Indexes FollowSymLinks
+    AllowOverride All
+    Require all granted
+</Directory>
+
+<Directory "C:/laragon/www/TCC/Dashbeauty/api">
+    Options Indexes FollowSymLinks
+    AllowOverride All
+    Require all granted
+</Directory>
