@@ -5,120 +5,799 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DashBeauty | Agendamento de Beleza</title>
     <link rel="manifest" href="manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* ============================================
+           ESTILOS EXCLUSIVOS DA TELA INICIAL
+           ============================================ */
+        
+        /* Hero Section aprimorada */
+        .hero {
+            padding: 100px 0 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -30%;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(108, 59, 212, 0.12), transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -40%;
+            left: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(245, 166, 35, 0.06), transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .hero .container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 80px;
+            flex-wrap: wrap;
+        }
+
+        .hero-content {
+            flex: 1 1 500px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(245, 166, 35, 0.12);
+            color: #F5A623;
+            padding: 6px 18px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(245, 166, 35, 0.15);
+            margin-bottom: 24px;
+            letter-spacing: 0.5px;
+        }
+
+        .hero-badge i {
+            font-size: 14px;
+        }
+
+        .hero-title {
+            font-size: 56px;
+            font-weight: 900;
+            line-height: 1.08;
+            margin-bottom: 20px;
+            color: #FFFFFF;
+        }
+
+        .hero-title .highlight {
+            background: linear-gradient(135deg, #6C3BD4, #8B5CF6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-title .highlight-gold {
+            background: linear-gradient(135deg, #F5A623, #F7B84D);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 18px;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.7;
+            max-width: 480px;
+            margin-bottom: 32px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn-hero-primary {
+            background: linear-gradient(135deg, #6C3BD4, #8B5CF6);
+            color: white;
+            border: none;
+            padding: 14px 36px;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 20px rgba(108, 59, 212, 0.3);
+        }
+
+        .btn-hero-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 32px rgba(108, 59, 212, 0.4);
+        }
+
+        .btn-hero-secondary {
+            background: rgba(255,255,255,0.06);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.12);
+            padding: 14px 36px;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-hero-secondary:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(108, 59, 212, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 48px;
+            margin-top: 48px;
+            padding-top: 32px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .hero-stat h3 {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #6C3BD4, #8B5CF6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-stat p {
+            font-size: 14px;
+            color: rgba(255,255,255,0.4);
+            margin-top: 2px;
+        }
+
+        /* Hero Image */
+        .hero-image {
+            flex: 1 1 400px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .hero-card {
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 48px 40px;
+            border: 1px solid rgba(255,255,255,0.06);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            transition: all 0.4s ease;
+        }
+
+        .hero-card:hover {
+            border-color: rgba(108, 59, 212, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .hero-card-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(108, 59, 212, 0.2), rgba(139, 92, 246, 0.1));
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .hero-card-icon i {
+            font-size: 40px;
+            color: #F5A623;
+        }
+
+        .hero-card h4 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .hero-card p {
+            color: rgba(255,255,255,0.5);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* Seção Como Funciona - Melhorada */
+        .how-it-works {
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .how-it-works .section-title {
+            font-size: 38px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .how-it-works .section-subtitle {
+            font-size: 18px;
+            margin-bottom: 48px;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .step-card {
+            background: rgba(255,255,255,0.03);
+            border-radius: 24px;
+            padding: 40px 28px;
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .step-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(108, 59, 212, 0.2);
+            background: rgba(108, 59, 212, 0.04);
+        }
+
+        .step-number {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #6C3BD4, #8B5CF6);
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: white;
+            margin: 0 auto 16px;
+        }
+
+        .step-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .step-card p {
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Categorias */
+        .categories-section {
+            padding: 60px 0;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .category-item {
+            background: rgba(255,255,255,0.03);
+            border-radius: 16px;
+            padding: 24px 16px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.06);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-item:hover {
+            transform: translateY(-5px);
+            border-color: rgba(108, 59, 212, 0.2);
+            background: rgba(108, 59, 212, 0.04);
+        }
+
+        .category-item i {
+            font-size: 32px;
+            color: #F5A623;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .category-item span {
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* Destaques */
+        .featured-section {
+            padding: 60px 0;
+        }
+
+        .featured-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .featured-card {
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+
+        .featured-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(108, 59, 212, 0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .featured-image {
+            height: 140px;
+            background: linear-gradient(135deg, #6C3BD4, #8B5CF6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .featured-image i {
+            font-size: 48px;
+            color: rgba(255,255,255,0.2);
+        }
+
+        .featured-tag {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #F5A623;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .featured-info {
+            padding: 20px;
+        }
+
+        .featured-info h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .featured-info .stars {
+            color: #F5A623;
+            font-size: 12px;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .featured-info .address {
+            color: rgba(255,255,255,0.4);
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Footer */
+        .footer {
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding: 48px 0 24px;
+            margin-top: 60px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 1024px) {
+            .hero-title {
+                font-size: 44px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 60px 0 40px;
+            }
+
+            .hero .container {
+                flex-direction: column;
+                text-align: center;
+                gap: 40px;
+            }
+
+            .hero-title {
+                font-size: 36px;
+            }
+
+            .hero-description {
+                max-width: 100%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .hero-stats {
+                justify-content: center;
+                gap: 24px;
+                flex-wrap: wrap;
+            }
+
+            .hero-stat h3 {
+                font-size: 24px;
+            }
+
+            .steps-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+            }
+
+            .how-it-works .section-title {
+                font-size: 28px;
+            }
+
+            .categories-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .featured-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-card {
+                padding: 32px 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 28px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+            }
+
+            .hero-buttons .btn-hero-primary,
+            .hero-buttons .btn-hero-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .categories-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .hero-card {
+                padding: 24px 16px;
+            }
+
+            .hero-card-icon {
+                width: 60px;
+                height: 60px;
+            }
+
+            .hero-card-icon i {
+                font-size: 28px;
+            }
+
+            .hero-card h4 {
+                font-size: 18px;
+            }
+        }
+
+/* ============================================
+   LOGO DO SITE
+   ============================================ */
+
+.logo-img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.logo-img:hover {
+    transform: scale(1.05);
+}
+
+/* Para telas menores (tablets) */
+@media (max-width: 768px) {
+    .logo-img {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+/* Para telas muito pequenas (celulares) */
+@media (max-width: 480px) {
+    .logo-img {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+    </style>
 </head>
 <body>
-    <div id="app">
-        <!-- Header -->
-        <header class="header">
-            <div class="container">
-                <div class="logo" onclick="window.location.href='/'">
-                    <i class="fas fa-spa"></i>
-                    <div>
-                        <h1>dashbeauty</h1>
-                        <span>beauty scheduling</span>
-                    </div>
-                </div>
-                <nav class="nav">
-                    <a href="#">Início</a>
-                    <a href="#">Serviços</a>
-                    <a href="#">Sobre</a>
-                    <a href="#">Contato</a>
-                </nav>
-                <div class="auth-buttons">
-                    <button class="btn-outline" onclick="window.location.href='login.html'">Entrar</button>
-                    <button class="btn-primary" onclick="window.location.href='register.html'">Cadastrar</button>
+    <!-- ============================================
+    HEADER
+    ============================================ -->
+    <header class="header">
+        <div class="container">
+            <div class="logo" onclick="window.location.href='index.html'">
+                <img src="assets/icons/logo.png" alt="DashBeauty Logo" class="logo-img">
+                <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" sizes="16x16" href="favicon.ico">
+    <link rel="icon" sizes="32x32" href="favicon.ico">
+
+
+
+                <div>
+                    <h1>dashbeauty</h1>
+                    <span>beauty scheduling</span>
                 </div>
             </div>
-        </header>
+            <nav class="nav">
+                <a href="#">Início</a>
+                <a href="#">Serviços</a>
+                <a href="#">Sobre</a>
+                <a href="#">Contato</a>
+            </nav>
+            <div class="auth-buttons" style="display: flex; gap: 12px;">
+                <button class="btn-primary" onclick="window.location.href='login.html'">Entrar</button>
+                <button class="btn-primary" onclick="window.location.href='register.html'">Cadastrar</button>
+            </div>
+        </div>
+    </header>
 
-        <!-- Hero Section -->
-        <section class="hero">
-            <div class="container">
-                <div class="hero-content">
-                    <span class="badge">✦ Plataforma Premium</span>
-                    <h1>Agende seus<br>serviços de beleza</h1>
-                    <p>Conecte-se com os melhores profissionais, agende horários e gerencie tudo em um só lugar.</p>
-                    <div class="hero-buttons">
-                        <button class="btn-primary btn-lg" onclick="window.location.href='register.html'">Começar agora</button>
-                        <button class="btn-secondary">Ver demonstração</button>
+    <!-- ============================================
+    HERO SECTION
+    ============================================ -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="fas fa-sparkles"></i>
+                    Plataforma Premium
+                </div>
+                <h1 class="hero-title">
+                    Agende seus<br>
+                    <span class="highlight">serviços de beleza</span>
+                    <br>com <span class="highlight-gold">facilidade</span>
+                </h1>
+                <p class="hero-description">
+                    Conecte-se com os melhores profissionais, agende horários e 
+                    gerencie tudo em um só lugar. Simples, rápido e seguro.
+                </p>
+                <div class="hero-buttons">
+                    <button class="btn-hero-primary" onclick="window.location.href='register.html'">
+                        Começar agora <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button class="btn-hero-secondary">
+                        <i class="fas fa-play-circle"></i> Ver demonstração
+                    </button>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <h3>500+</h3>
+                        <p>Profissionais</p>
                     </div>
-                    <div class="stats">
-                        <div><h3>500+</h3><p>Profissionais</p></div>
-                        <div><h3>2k+</h3><p>Agendamentos</p></div>
-                        <div><h3>4.9★</h3><p>Avaliação média</p></div>
+                    <div class="hero-stat">
+                        <h3>2k+</h3>
+                        <p>Agendamentos</p>
+                    </div>
+                    <div class="hero-stat">
+                        <h3>4.9★</h3>
+                        <p>Avaliação média</p>
                     </div>
                 </div>
-                <div class="hero-image">
-                    <div class="card-hero">
+            </div>
+            <div class="hero-image">
+                <div class="hero-card">
+                    <div class="hero-card-icon">
                         <i class="fas fa-calendar-check"></i>
-                        <h4>Agendamento fácil</h4>
-                        <p>Escolha o serviço, horário e confirme em segundos</p>
+                    </div>
+                    <h4>Agendamento fácil</h4>
+                    <p>Escolha o serviço, horário e confirme em segundos. Tudo de forma intuitiva e sem complicações.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+    COMO FUNCIONA
+    ============================================ -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">Como funciona?</h2>
+            <p class="section-subtitle">Três passos simples para agendar seu serviço</p>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3>Encontre</h3>
+                    <p>Busque por salões e profissionais perto de você usando nossa busca inteligente</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3>Agende</h3>
+                    <p>Escolha o serviço, selecione o melhor horário e confirme em poucos cliques</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3>Relaxe</h3>
+                    <p>Compareça ao local, aproveite o serviço e receba notificações de lembrete</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+    CATEGORIAS
+    ============================================ -->
+    <section class="categories-section">
+        <div class="container">
+            <h2 class="section-title" style="text-align: center;">Categorias</h2>
+            <p class="section-subtitle">Explore os serviços mais procurados</p>
+            <div class="categories-grid">
+                <div class="category-item" onclick="window.location.href='client.html'">
+                    <i class="fas fa-cut"></i>
+                    <span>Cabelo</span>
+                </div>
+                <div class="category-item" onclick="window.location.href='client.html'">
+                    <i class="fas fa-hand"></i>
+                    <span>Unhas</span>
+                </div>
+                <div class="category-item" onclick="window.location.href='client.html'">
+                    <i class="fas fa-brush"></i>
+                    <span>Maquiagem</span>
+                </div>
+                <div class="category-item" onclick="window.location.href='client.html'">
+                    <i class="fas fa-eye"></i>
+                    <span>Sobrancelhas</span>
+                </div>
+                <div class="category-item" onclick="window.location.href='client.html'">
+                    <i class="fas fa-spa"></i>
+                    <span>Massagem</span>
+                </div>
+                <div class="category-item" onclick="window.location.href='client.html'">
+                    <i class="fas fa-wind"></i>
+                    <span>Depilação</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+    DESTAQUES
+    ============================================ -->
+    <section class="featured-section">
+        <div class="container">
+            <h2 class="section-title" style="text-align: center;">Salões em Destaque</h2>
+            <p class="section-subtitle">Os mais bem avaliados da plataforma</p>
+            <div class="featured-grid" id="featured-grid">
+                <!-- Carregado via JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+    FOOTER
+    ============================================ -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-spa"></i>
+                    <span>dashbeauty</span>
+                </div>
+                <div class="footer-links">
+                    <div>
+                        <h4>Plataforma</h4>
+                        <a href="#">Início</a>
+                        <a href="#">Serviços</a>
+                        <a href="#">Preços</a>
+                    </div>
+                    <div>
+                        <h4>Suporte</h4>
+                        <a href="#">Central de ajuda</a>
+                        <a href="#">FAQ</a>
+                        <a href="#">Contato</a>
+                    </div>
+                    <div>
+                        <h4>Legal</h4>
+                        <a href="#">Termos de uso</a>
+                        <a href="#">Privacidade</a>
+                        <a href="#">Cookies</a>
                     </div>
                 </div>
             </div>
-        </section>
-
-        <!-- Como Funciona -->
-        <section class="how-it-works">
-            <div class="container">
-                <h2 class="section-title">Como funciona?</h2>
-                <p class="section-subtitle">Três passos simples para agendar seu serviço</p>
-                <div class="steps">
-                    <div class="step">
-                        <div class="step-icon"><i class="fas fa-search"></i></div>
-                        <h3>1. Encontre</h3>
-                        <p>Busque por salões perto de você</p>
-                    </div>
-                    <div class="step">
-                        <div class="step-icon"><i class="fas fa-calendar-alt"></i></div>
-                        <h3>2. Agende</h3>
-                        <p>Escolha o serviço e horário</p>
-                    </div>
-                    <div class="step">
-                        <div class="step-icon"><i class="fas fa-star"></i></div>
-                        <h3>3. Relaxe</h3>
-                        <p>Compareça e aproveite</p>
-                    </div>
-                </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 DashBeauty. Todos os direitos reservados.</p>
             </div>
-        </section>
+        </div>
+    </footer>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <div class="container">
-                <div class="footer-content">
-                    <div class="footer-logo">
-                        <i class="fas fa-spa"></i>
-                        <span>dashbeauty</span>
+    <script>
+        // ============================================
+        // CARREGAR SALÕES EM DESTAQUE
+        // ============================================
+        const featuredBusinesses = [
+            { id: 1, name: 'Salão da Maria', address: 'Rua das Flores, 123 - SP', rating: 4.8, featured: true },
+            { id: 2, name: 'Studio de Beleza', address: 'Av. Paulista, 1000 - SP', rating: 4.5, featured: true },
+            { id: 3, name: 'Espaço Estética', address: 'Rua Augusta, 500 - SP', rating: 4.9, featured: true }
+        ];
+
+        function renderStars(rating) {
+            let stars = '';
+            for (let i = 0; i < Math.floor(rating); i++) stars += '<i class="fas fa-star"></i>';
+            if (rating % 1 >= 0.5) stars += '<i class="fas fa-star-half-alt"></i>';
+            for (let i = stars.length / 2; i < 5; i++) stars += '<i class="far fa-star"></i>';
+            return stars;
+        }
+
+        function displayFeatured() {
+            const container = document.getElementById('featured-grid');
+            container.innerHTML = featuredBusinesses.map(b => `
+                <div class="featured-card" onclick="window.location.href='client.html'">
+                    <div class="featured-image">
+                        <i class="fas fa-store"></i>
+                        <span class="featured-tag"><i class="fas fa-star"></i> Destaque</span>
                     </div>
-                    <div class="footer-links">
-                        <div>
-                            <h4>Plataforma</h4>
-                            <a href="#">Início</a>
-                            <a href="#">Serviços</a>
-                        </div>
-                        <div>
-                            <h4>Suporte</h4>
-                            <a href="#">Ajuda</a>
-                            <a href="#">Contato</a>
-                        </div>
-                        <div>
-                            <h4>Legal</h4>
-                            <a href="#">Termos</a>
-                            <a href="#">Privacidade</a>
+                    <div class="featured-info">
+                        <h4>${b.name}</h4>
+                        <div class="stars">${renderStars(b.rating)}</div>
+                        <div class="address">
+                            <i class="fas fa-map-marker-alt"></i>
+                            ${b.address}
                         </div>
                     </div>
                 </div>
-                <div class="footer-bottom">
-                    <p>&copy; 2024 DashBeauty. Todos os direitos reservados.</p>
-                </div>
-            </div>
-        </footer>
-    </div>
+            `).join('');
+        }
 
-    <script src="js/app.js"></script>
+        displayFeatured();
+    </script>
 </body>
 </html>
